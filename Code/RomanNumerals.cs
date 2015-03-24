@@ -8,13 +8,18 @@ namespace Code
     {
         public string DecimalToRoman(int n)
         {
-            var map = new Dictionary<string, int>();
-
-            CurrencyValues.ForEach(tuple =>
-            {
-                map.Add(tuple.Item2, n/tuple.Item1);
-                n = n%tuple.Item1;
-            });
+            var map = CurrencyValues.Aggregate(
+                Tuple.Create(new Dictionary<string, int>(), n),
+                (acc, tuple) =>
+                {
+                    var m = acc.Item1;
+                    var r = acc.Item2;
+                    var v = tuple.Item1;
+                    var s = tuple.Item2;
+                    m.Add(s, r/v);
+                    return Tuple.Create(m, r%v);
+                },
+                acc => acc.Item1);
 
             return map.Aggregate(
                 string.Empty,
@@ -30,7 +35,7 @@ namespace Code
                 .ToList()
                 .ForEach(tuple =>
                 {
-                    if (s.IndexOf(tuple.Item2) >= 0)
+                    if (s.IndexOf(tuple.Item2, StringComparison.Ordinal) >= 0)
                     {
                         n += tuple.Item1;
                         s = s.Replace(tuple.Item2, string.Empty);
