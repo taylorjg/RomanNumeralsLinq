@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Code
@@ -50,8 +51,7 @@ namespace Code
             return n + remainingTotal;
         }
 
-        private static readonly List<Tuple<int, string>> CurrencyValues = new List<Tuple<int, string>>
-        {
+        private static readonly IImmutableList<Tuple<int, string>> CurrencyValues = ImmutableList.Create(
             Tuple.Create(1000, "M"),
             Tuple.Create(900, "CM"),
             Tuple.Create(500, "D"),
@@ -64,7 +64,6 @@ namespace Code
             Tuple.Create(9, "IX"),
             Tuple.Create(5, "V"),
             Tuple.Create(4, "IV"),
-            Tuple.Create(1, "I")
-        };
+            Tuple.Create(1, "I"));
     }
 }
