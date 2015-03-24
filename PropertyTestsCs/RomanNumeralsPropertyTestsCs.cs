@@ -12,7 +12,7 @@ namespace PropertyTestsCs
         private static readonly Configuration Configuration = Config.VerboseThrowOnFailure.ToConfiguration();
 
         [Test]
-        public void RoundTripProperty()
+        public void RoundTripPropertyTest()
         {
             var rn = new RomanNumerals();
 
