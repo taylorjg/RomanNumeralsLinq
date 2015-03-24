@@ -9,27 +9,18 @@ namespace Code
         {
             var map = new Dictionary<string, int>();
 
-            CurrencyValues.OrderBy(c => c.Key)
+            CurrencyValues.OrderBy(kvp => kvp.Key)
                 .Reverse()
                 .ToList()
-                .ForEach(c =>
+                .ForEach(kvp =>
                 {
-                    map.Add(c.Value, n/c.Key);
-                    n = n%c.Key;
+                    map.Add(kvp.Value, n/kvp.Key);
+                    n = n%kvp.Key;
                 });
 
-            var romanValue = string.Empty;
-            map.Where(m => m.Value > 0)
-                .ToList()
-                .ForEach(c =>
-                {
-                    Enumerable.Range(0, c.Value).ToList().ForEach(arg =>
-                    {
-                        romanValue += c.Key;
-                    });
-                });
-
-            return romanValue;
+            return map.Aggregate(
+                string.Empty,
+                (acc, kvp) => acc + string.Concat(Enumerable.Repeat(kvp.Key, kvp.Value)));
         }
 
         public int RomanToDecimal(string s)
@@ -70,7 +61,7 @@ namespace Code
             {9, "IX"},
             {5, "V"},
             {4, "IV"},
-            {1, "I"},
+            {1, "I"}
         };
     }
 }
