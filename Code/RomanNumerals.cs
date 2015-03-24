@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -11,20 +10,20 @@ namespace Code
         {
             return CurrencyValues
                 .Aggregate(
-                    Tuple.Create(new Dictionary<string, int>(), n),
+                    Tuple.Create(ImmutableList.Create<Tuple<string, int>>(), n),
                     (acc, tuple) =>
                     {
-                        var map = acc.Item1;
+                        var oldList = acc.Item1;
                         var remaining = acc.Item2;
                         var romanValue = tuple.Item1;
                         var romanString = tuple.Item2;
-                        map.Add(romanString, remaining/romanValue);
-                        return Tuple.Create(map, remaining%romanValue);
+                        var newList = oldList.Add(Tuple.Create(romanString, remaining/romanValue));
+                        return Tuple.Create(newList, remaining % romanValue);
                     },
                     acc => acc.Item1)
                 .Aggregate(
                     string.Empty,
-                    (acc, kvp) => acc + string.Concat(Enumerable.Repeat(kvp.Key, kvp.Value)));
+                    (acc, tuple) => acc + string.Concat(Enumerable.Repeat(tuple.Item1, tuple.Item2)));
         }
 
         public int RomanToDecimal(string s)
