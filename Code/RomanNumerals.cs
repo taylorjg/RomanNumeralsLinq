@@ -28,26 +28,32 @@ namespace Code
 
         public int RomanToDecimal(string s)
         {
-            var n = 0;
-
-            CurrencyValues
+            var aggregate = CurrencyValues
                 .Where(tuple => tuple.Item2.Length > 1)
-                .ToList()
-                .ForEach(tuple =>
-                {
-                    if (s.IndexOf(tuple.Item2, StringComparison.Ordinal) >= 0)
+                .Aggregate(
+                    Tuple.Create(s, 0),
+                    (acc, tuple) =>
                     {
-                        n += tuple.Item1;
-                        s = s.Replace(tuple.Item2, string.Empty);
-                    }
-                });
+                        var sOld = acc.Item1;
+                        var nOld = acc.Item2;
+                        var romanValue = tuple.Item1;
+                        var romanString = tuple.Item2;
+                        var pos = sOld.IndexOf(romanString, StringComparison.Ordinal);
+                        if (pos < 0) return acc;
+                        return Tuple.Create(
+                            sOld.Replace(romanString, string.Empty),
+                            nOld + romanValue);
+                    });
 
-            var remainingTotal =
-                (from romanChar in s
+            var sWithMultiCharRomanValuesRemoved = aggregate.Item1;
+            var totalOfMultiCharRomanValues = aggregate.Item2;
+
+            var totalOfSingleCharRomanValues =
+                (from romanChar in sWithMultiCharRomanValuesRemoved
                     join tuple in CurrencyValues on romanChar.ToString() equals tuple.Item2
                     select tuple.Item1).Sum();
 
-            return n + remainingTotal;
+            return totalOfSingleCharRomanValues + totalOfMultiCharRomanValues;
         }
 
         private static readonly IImmutableList<Tuple<int, string>> CurrencyValues = ImmutableList.Create(
