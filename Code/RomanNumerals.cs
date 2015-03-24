@@ -9,6 +9,7 @@ namespace Code
         public string DecimalToRoman(int n)
         {
             return CurrencyValues
+                .OrderByDescending(cv => cv.Item1)
                 .Aggregate(
                     Tuple.Create(ImmutableList.Create<Tuple<string, int>>(), n),
                     (acc, tuple) =>
@@ -18,7 +19,7 @@ namespace Code
                         var romanValue = tuple.Item1;
                         var romanString = tuple.Item2;
                         var newList = oldList.Add(Tuple.Create(romanString, remaining/romanValue));
-                        return Tuple.Create(newList, remaining % romanValue);
+                        return Tuple.Create(newList, remaining%romanValue);
                     },
                     acc => acc.Item1)
                 .Aggregate(
@@ -28,8 +29,8 @@ namespace Code
 
         public int RomanToDecimal(string s)
         {
-            var aggregate = CurrencyValues
-                .Where(tuple => tuple.Item2.Length > 1)
+            return CurrencyValues
+                .OrderByDescending(cv => cv.Item2.Length)
                 .Aggregate(
                     Tuple.Create(s, 0),
                     (acc, tuple) =>
@@ -38,37 +39,35 @@ namespace Code
                         var nOld = acc.Item2;
                         var romanValue = tuple.Item1;
                         var romanString = tuple.Item2;
-                        var pos = sOld.IndexOf(romanString, StringComparison.Ordinal);
-                        if (pos < 0) return acc;
-                        return Tuple.Create(
-                            sOld.Replace(romanString, string.Empty),
-                            nOld + romanValue);
-                    });
-
-            var sWithMultiCharRomanValuesRemoved = aggregate.Item1;
-            var totalOfMultiCharRomanValues = aggregate.Item2;
-
-            var totalOfSingleCharRomanValues =
-                (from romanChar in sWithMultiCharRomanValuesRemoved
-                    join tuple in CurrencyValues on romanChar.ToString() equals tuple.Item2
-                    select tuple.Item1).Sum();
-
-            return totalOfSingleCharRomanValues + totalOfMultiCharRomanValues;
+                        var numOccurrences = 0;
+                        var cursor = 0;
+                        for (;;)
+                        {
+                            var pos = sOld.IndexOf(romanString, cursor, StringComparison.Ordinal);
+                            if (pos < 0) break;
+                            cursor = pos + 1;
+                            numOccurrences++;
+                        }
+                        var sNew = sOld.Replace(romanString, string.Empty);
+                        var nNew = nOld + (romanValue*numOccurrences);
+                        return Tuple.Create(sNew, nNew);
+                    },
+                    acc => acc.Item2);
         }
 
         private static readonly IImmutableList<Tuple<int, string>> CurrencyValues = ImmutableList.Create(
-            Tuple.Create(1000, "M"),
-            Tuple.Create(900, "CM"),
-            Tuple.Create(500, "D"),
-            Tuple.Create(400, "CD"),
-            Tuple.Create(100, "C"),
-            Tuple.Create(90, "XC"),
-            Tuple.Create(50, "L"),
-            Tuple.Create(40, "XL"),
-            Tuple.Create(10, "X"),
-            Tuple.Create(9, "IX"),
-            Tuple.Create(5, "V"),
+            Tuple.Create(1, "I"),
             Tuple.Create(4, "IV"),
-            Tuple.Create(1, "I"));
+            Tuple.Create(5, "V"), 
+            Tuple.Create(9, "IX"),
+            Tuple.Create(10, "X"),
+            Tuple.Create(40, "XL"),
+            Tuple.Create(50, "L"),
+            Tuple.Create(90, "XC"),
+            Tuple.Create(100, "C"),
+            Tuple.Create(400, "CD"),
+            Tuple.Create(500, "D"),
+            Tuple.Create(900, "CM"),
+            Tuple.Create(1000, "M"));
     }
 }
