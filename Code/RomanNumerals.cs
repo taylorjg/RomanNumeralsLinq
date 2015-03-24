@@ -11,20 +11,15 @@ namespace Code
             return CurrencyValues
                 .OrderByDescending(cv => cv.Item1)
                 .Aggregate(
-                    Tuple.Create(ImmutableList.Create<Tuple<string, int>>(), n),
+                    string.Empty,
                     (acc, tuple) =>
                     {
-                        var oldList = acc.Item1;
-                        var remaining = acc.Item2;
                         var romanValue = tuple.Item1;
                         var romanString = tuple.Item2;
-                        var newList = oldList.Add(Tuple.Create(romanString, remaining/romanValue));
-                        return Tuple.Create(newList, remaining%romanValue);
-                    },
-                    acc => acc.Item1)
-                .Aggregate(
-                    string.Empty,
-                    (acc, tuple) => acc + string.Concat(Enumerable.Repeat(tuple.Item1, tuple.Item2)));
+                        var newString = acc + string.Concat(Enumerable.Repeat(romanString, n/romanValue));
+                        n = n%romanValue;
+                        return newString;
+                    });
         }
 
         public int RomanToDecimal(string s)
@@ -32,27 +27,23 @@ namespace Code
             return CurrencyValues
                 .OrderByDescending(cv => cv.Item2.Length)
                 .Aggregate(
-                    Tuple.Create(s, 0),
+                    0,
                     (acc, tuple) =>
                     {
-                        var sOld = acc.Item1;
-                        var nOld = acc.Item2;
                         var romanValue = tuple.Item1;
                         var romanString = tuple.Item2;
                         var numOccurrences = 0;
                         var cursor = 0;
                         for (;;)
                         {
-                            var pos = sOld.IndexOf(romanString, cursor, StringComparison.Ordinal);
+                            var pos = s.IndexOf(romanString, cursor, StringComparison.Ordinal);
                             if (pos < 0) break;
                             cursor = pos + 1;
                             numOccurrences++;
                         }
-                        var sNew = sOld.Replace(romanString, string.Empty);
-                        var nNew = nOld + (romanValue*numOccurrences);
-                        return Tuple.Create(sNew, nNew);
-                    },
-                    acc => acc.Item2);
+                        s = s.Replace(romanString, string.Empty);
+                        return acc + (romanValue*numOccurrences);
+                    });
         }
 
         private static readonly IImmutableList<Tuple<int, string>> CurrencyValues = ImmutableList.Create(
