@@ -8,22 +8,22 @@ namespace Code
     {
         public string DecimalToRoman(int n)
         {
-            var map = CurrencyValues.Aggregate(
-                Tuple.Create(new Dictionary<string, int>(), n),
-                (acc, tuple) =>
-                {
-                    var m = acc.Item1;
-                    var r = acc.Item2;
-                    var v = tuple.Item1;
-                    var s = tuple.Item2;
-                    m.Add(s, r/v);
-                    return Tuple.Create(m, r%v);
-                },
-                acc => acc.Item1);
-
-            return map.Aggregate(
-                string.Empty,
-                (acc, kvp) => acc + string.Concat(Enumerable.Repeat(kvp.Key, kvp.Value)));
+            return CurrencyValues
+                .Aggregate(
+                    Tuple.Create(new Dictionary<string, int>(), n),
+                    (acc, tuple) =>
+                    {
+                        var map = acc.Item1;
+                        var remaining = acc.Item2;
+                        var romanValue = tuple.Item1;
+                        var romanString = tuple.Item2;
+                        map.Add(romanString, remaining/romanValue);
+                        return Tuple.Create(map, remaining%romanValue);
+                    },
+                    acc => acc.Item1)
+                .Aggregate(
+                    string.Empty,
+                    (acc, kvp) => acc + string.Concat(Enumerable.Repeat(kvp.Key, kvp.Value)));
         }
 
         public int RomanToDecimal(string s)
