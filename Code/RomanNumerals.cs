@@ -10,13 +10,11 @@ namespace Code
         {
             var map = new Dictionary<string, int>();
 
-            CurrencyValues
-                .ToList()
-                .ForEach(tuple =>
-                {
-                    map.Add(tuple.Item2, n/tuple.Item1);
-                    n = n%tuple.Item1;
-                });
+            CurrencyValues.ForEach(tuple =>
+            {
+                map.Add(tuple.Item2, n/tuple.Item1);
+                n = n%tuple.Item1;
+            });
 
             return map.Aggregate(
                 string.Empty,
@@ -41,13 +39,14 @@ namespace Code
 
             var remainingTotal =
                 (from romanChar in s
-                    join tuple in CurrencyValues.ToList() on romanChar.ToString() equals tuple.Item2
+                    join tuple in CurrencyValues on romanChar.ToString() equals tuple.Item2
                     select tuple.Item1).Sum();
 
             return n + remainingTotal;
         }
 
-        private static readonly Tuple<int, string>[] CurrencyValues = {
+        private static readonly List<Tuple<int, string>> CurrencyValues = new List<Tuple<int, string>>
+        {
             Tuple.Create(1000, "M"),
             Tuple.Create(900, "CM"),
             Tuple.Create(500, "D"),
