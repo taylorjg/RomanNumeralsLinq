@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Code
 {
-    public class RomanNumerals
+    public class RomanNumeralsLinq
     {
         public string DecimalToRoman(int n)
         {
@@ -24,6 +24,9 @@ namespace Code
 
         public int RomanToDecimal(string s)
         {
+            Func<string, string, string[]> removeOccurrences = (s1, sep) =>
+                s1.Split(new[] {sep}, StringSplitOptions.None);
+
             return CurrencyValues
                 .OrderByDescending(cv => cv.Item2.Length)
                 .Aggregate(
@@ -32,16 +35,9 @@ namespace Code
                     {
                         var romanValue = tuple.Item1;
                         var romanString = tuple.Item2;
-                        var numOccurrences = 0;
-                        var cursor = 0;
-                        for (;;)
-                        {
-                            var pos = s.IndexOf(romanString, cursor, StringComparison.Ordinal);
-                            if (pos < 0) break;
-                            cursor = pos + 1;
-                            numOccurrences++;
-                        }
-                        s = s.Replace(romanString, string.Empty);
+                        var remainingBits = removeOccurrences(s, romanString);
+                        var numOccurrences = remainingBits.Length - 1;
+                        s = string.Concat(remainingBits);
                         return acc + (romanValue*numOccurrences);
                     });
         }

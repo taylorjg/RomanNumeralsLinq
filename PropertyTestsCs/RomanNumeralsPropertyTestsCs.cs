@@ -14,10 +14,10 @@ namespace PropertyTestsCs
         [Test]
         public void RoundTripPropertyTest()
         {
-            var rn = new RomanNumerals();
+            var rnl = new RomanNumeralsLinq();
 
             Spec
-                .For(Any.IntBetween(1, 3000), n => rn.RomanToDecimal(rn.DecimalToRoman(n)) == n)
+                .For(Any.IntBetween(1, 3000), n => rnl.RomanToDecimal(rnl.DecimalToRoman(n)) == n)
                 .Check(Configuration);
         }
     }
